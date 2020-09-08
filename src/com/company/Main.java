@@ -126,6 +126,7 @@ class RatNum {
 
 
 
+
     /*
     Returns the greatest common denominator
      */
@@ -248,11 +249,22 @@ class RatNum {
     }
     public String toDotString(int decimalCount){
 
-        String s;
+        String s = "a";
         int temp;
 
         temp = this.numerator / this.denominator;
-        s = String.valueOf(temp);
+
+        if (this.numerator < 0){
+            if(temp == 0){
+                s = "-" + String.valueOf(temp);
+            }else {
+                s = String.valueOf(temp);
+            }
+        }else {
+            s = String.valueOf(temp);
+        }
+
+
 
         if(decimalCount == 0)
             return s;
@@ -261,13 +273,11 @@ class RatNum {
         s += ".";
 
         temp = this.numerator % this.denominator;
-
-
+        temp = Math.abs(temp);
         for (int i = 0; i < decimalCount ; i++) {
 
             temp *= 10;
             s+=String.valueOf(temp/this.denominator);
-
             temp %= this.denominator;
 
         }
