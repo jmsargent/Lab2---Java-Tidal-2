@@ -4,6 +4,7 @@ package com.company;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLOutput;
+import java.util.IllegalFormatException;
 import java.util.Scanner;
 
 public class Main {
@@ -15,30 +16,52 @@ public class Main {
 
 }
 
+/**
+ * Creates Rational number
+ */
+
 class RatNum {
 
     private int numerator;
     private int denominator; // n/d
 
-
+    /**
+     * Sets numerator = 0, and denominator = 1
+     */
     public RatNum() {
         this.numerator = 0;
         this.denominator = 1;
     }
 
+
+    /**
+     * sets denominator to 1, parameter to numerator
+     *
+     * @param n numerator (int)
+     */
     public RatNum(int n) {
         this.numerator = n;
         this.denominator = 1;
     }
 
+    /**
+     * Sets the rational number to the String argument, allowed formats are "a/b", "-a/b", "a/-b" or "a".
+     *
+     * @param s (String)
+     */
     public RatNum(String s) {
 
-        RatNum temp = parse(s);
-
-        this.numerator = temp.getNumerator();
-        this.denominator = temp.getDenominator();
+        this(parse(s));
 
     }
+
+
+    /**
+     * Sets the rational number to the given int arguments. In the format (numerator) / (denominator)
+     *
+     * @param numerator
+     * @param denominator
+     */
 
     public RatNum(int numerator, int denominator) {
 
@@ -62,89 +85,85 @@ class RatNum {
         }
     }
 
+
+    /**
+     * Copy constructor, creates a new ratnum with the same numerator and denominator as the given argument.
+     *
+     * @param ratnum
+     */
     public RatNum(RatNum ratnum) {
         this.numerator = ratnum.getNumerator();
         this.denominator = ratnum.getDenominator();
     }
 
     /**
-     * @param frac Takes String parameter written in one of the following forms:  "a/b", "-a/b", "a/-b" or "a"
+     * Takes String . Returns RatNum with the given parameters.
+     * @param frac string parameter written in one of the following forms:  "a/b", "-a/b", "a/-b" or "a"
      */
 
-
     public static RatNum parse(String frac) {
-        int tnum = 1;
-        int tden = 1;
+
+
+        int pLen = frac.length();
         RatNum ratNum;
 
+        if (pLen < 1) {
 
-        // if any of the parsing creates an exception we want to handle it
-        try {
+            ratNum = new RatNum(Integer.parseInt(frac));
 
-            switch (frac.length()) {
-
-                case (1):
-
-                    // Maby extend the integer class to make this look better
-                    tnum = strIndexToInt(frac, 0);
-                    tden = 1;
-
-                    break;
-
-                case (3):
-                    tnum = strIndexToInt(frac, 0);
-                    tden = strIndexToInt(frac, 3);
-                    break;
-
-                case (4):
-
-                    if (frac.charAt(0) == '-') {
-
-                        tnum = -strIndexToInt(frac, 1);
-                        tden = strIndexToInt(frac, 3);
-
-                    } else if (frac.charAt(2) == '-') {
-
-                        tnum = -(strIndexToInt(frac, 1));
-                        tden = strIndexToInt(frac, 3);
-
-                    }
-                    break;
-
-                default:
-
-                    throw new NumberFormatException("Only input in the formats: \"a/b\", \"-a/b\", \"a/-b\" or \"a\" allowed");
-
-            }
-        } catch (Exception e) {
-            throw new NumberFormatException("Only input in the formats: \"a/b\", \"-a/b\", \"a/-b\" or \"a\" allowed");
+        } else {
+            int dashPos = frac.indexOf('/');
+            String sNumerator = frac.substring(0, dashPos);
+            String sDenominator = frac.substring(dashPos + 1, pLen);
+            ratNum = new RatNum(Integer.parseInt(sNumerator), Integer.parseInt(sDenominator));
         }
-        ratNum = new RatNum(tnum, tden);
+
+
         return ratNum;
     }
 
-
-
-
-
-    /*
-    Returns the greatest common denominator
+    /**
+     * Getter method for numerator.
+     * @return numerator
      */
 
     public int getNumerator() {
         return this.numerator;
     }
 
+    /**
+     * Getter method for denominator.
+     * @return denominator int
+     */
+
     public int getDenominator() {
         return this.denominator;
     }
 
+    /**
+     * Setter method for numerator.
+     * @param numerator int
+     */
+
     public void setNumerator(int numerator) {
         this.numerator = numerator;
     }
+
+
+    /**
+     * Setter method for denominator.
+     * @param denominator int
+     */
+
     public void setDenominator(int denominator) {
         this.denominator = denominator;
     }
+
+    /**
+     * @param m First integer to compare
+     * @param n Second integer to compare
+     * @return the greatest common divisor commonly refered as the GCD(m,n)
+     */
 
     static int gcd(int m, int n) {
 
@@ -184,12 +203,19 @@ class RatNum {
         return gcd;
     }
 
-    // Converts the fraction to a String
+    /**
+     * @return The fraction in a String-format
+     */
+    @Override
     public String toString() {
-        return (Integer.toString(numerator) + "/" + Integer.toString(denominator));
+        return (Integer.toString(this.numerator) + "/" + Integer.toString(this.denominator));
     }
 
 
+    /**
+     * @param r - object which you wanna compare to RatNum
+     * @return true if the r is identical to the RatNum
+     */
     @Override
     public boolean equals(Object r) {
         if (r == null) {
@@ -203,7 +229,12 @@ class RatNum {
         return (this.numerator == r2.getNumerator() && this.denominator == r2.getDenominator());
     }
 
-    public boolean lessThan(RatNum r){
+
+    /**
+     * @param r RatNum you wanna compare
+     * @return true if the parameter is smaller than the RatNum which it's being compared to.
+     */
+    public boolean lessThan(RatNum r) {
 
         int rExtnum, extNum;
         // extend fractions to the same denominators
@@ -211,62 +242,88 @@ class RatNum {
         rExtnum = r.getNumerator() * this.getDenominator();
         extNum = this.numerator * r.getDenominator();
 
-        if(rExtnum < extNum){
+        if (rExtnum < extNum) {
             return true;
         }
         return false;
     }
 
-    public RatNum add(RatNum r){
+    /**
+     * @param r
+     * @return RatNum sum
+     */
+    public RatNum add(RatNum r) {
 
-        int sumNumerator,sumDenominator;
+        int sumNumerator, sumDenominator;
 
 
         // a/b + c/d = (a*d + c*b) / b*d
-        sumDenominator = (this.denominator*r.getDenominator());
-        sumNumerator = (this.numerator*r.getDenominator() + r.getNumerator()*this.getDenominator());
+        sumDenominator = (this.denominator * r.getDenominator());
+        sumNumerator = (this.numerator * r.getDenominator() + r.getNumerator() * this.getDenominator());
 
 
-        return new RatNum(sumNumerator,sumDenominator);
+        return new RatNum(sumNumerator, sumDenominator);
     }
 
-    public RatNum sub(RatNum r){
 
-        int newNum,newDen;
+    /**
+     * @param r (RatNum)
+     * @return the difference between the RatNum and r as a new RatNum.
+     */
+    public RatNum sub(RatNum r) {
 
-        newNum = ((this.getNumerator()*r.getDenominator()) - (r.getNumerator()*this.getDenominator()));
-        newDen = this.getDenominator()*r.getDenominator();
+        int newNum, newDen;
 
-        return new RatNum(newNum,newDen);
+        newNum = ((this.getNumerator() * r.getDenominator()) - (r.getNumerator() * this.getDenominator()));
+        newDen = this.getDenominator() * r.getDenominator();
+
+        return new RatNum(newNum, newDen);
     }
 
-    public RatNum mul(RatNum r){
-        return new RatNum((r.getNumerator()*this.getNumerator()), (r.getDenominator()*this.getDenominator()));
+    /**
+     * Returns the product of The ratnum and the parameter r
+     * @param r (RatNum)
+     * @return resulting RatNum.
+     */
+    public RatNum mul(RatNum r) {
+        return new RatNum((r.getNumerator() * this.getNumerator()), (r.getDenominator() * this.getDenominator()));
     }
 
-    public RatNum div(RatNum r){
-        return new RatNum((this.numerator*r.getDenominator()),(this.denominator*r.getDenominator()));
+    /**
+     * Returns the resulting quota between the RatNum and its parameter
+     * @param r (RatNum)
+     * @return (RatNum)
+     */
+    public RatNum div(RatNum r) {
+        return new RatNum((this.numerator * r.getDenominator()), (this.denominator * r.getNumerator()));
     }
-    public String toDotString(int decimalCount){
+
+
+    /**
+     * Returns the rational number in decimal format rounded down
+     * with the number of decimals provided as parameter
+     * @param decimalCount (Int): Number of decimals
+     * @return (String)
+     */
+    public String toDotString(int decimalCount) {
 
         String s = "a";
         int temp;
 
         temp = this.numerator / this.denominator;
 
-        if (this.numerator < 0){
-            if(temp == 0){
+        if (this.numerator < 0) {
+            if (temp == 0) {
                 s = "-" + String.valueOf(temp);
-            }else {
+            } else {
                 s = String.valueOf(temp);
             }
-        }else {
+        } else {
             s = String.valueOf(temp);
         }
 
 
-
-        if(decimalCount == 0)
+        if (decimalCount == 0)
             return s;
 
         // for decimalcount > 0 we need a decimalpoint
@@ -274,10 +331,10 @@ class RatNum {
 
         temp = this.numerator % this.denominator;
         temp = Math.abs(temp);
-        for (int i = 0; i < decimalCount ; i++) {
+        for (int i = 0; i < decimalCount; i++) {
 
             temp *= 10;
-            s+=String.valueOf(temp/this.denominator);
+            s += String.valueOf(temp / this.denominator);
             temp %= this.denominator;
 
         }
@@ -285,16 +342,9 @@ class RatNum {
         return s;
     }
 
-    /**
-     * Converts integer at a specific index of String
-     * @param str
-     * @param index
-     * @return
-     */
-    private static int strIndexToInt(String str, int index) {
-        return Integer.parseInt(String.valueOf(str.charAt(index)));
-    }
 }
+
+
 
 
 class RatNumTest3 {
@@ -313,47 +363,50 @@ class RatNumTest3 {
             fraction = Math.abs(fraction);
         }
         if (fraction != 0)
-            s =  s + fraction + "/" + denom;
+            s = s + fraction + "/" + denom;
+
         return s;
+
+
     }
 
     private static void divTester() {
         // Testar equals och clone
-        RatNum x = new RatNum(6,2);
+        RatNum x = new RatNum(6, 2);
         RatNum y = new RatNum(0);
-        RatNum z = new RatNum(0,1);
-        RatNum w = new RatNum(75,25);
-        Object v = new RatNum(75,25);
+        RatNum z = new RatNum(0, 1);
+        RatNum w = new RatNum(75, 25);
+        Object v = new RatNum(75, 25);
         String str = new String("TEST");
 
         System.out.println();
         System.out.println(">>>> Test av equals: Vi har inte gått igenom equals ännu ");
         System.out.println("så du behöver inte klara dessa tester än");
-        //System.out.println("equals test 1 ");
+        System.out.println("equals test 1 ");
         if (x.equals(y) || !y.equals(z) || !x.equals(w)) {
             System.out.println("RatNumTest3: FEL 1 i equals!!");
         }
-        //System.out.println("equals test 2 ");
-        if ( !w.equals(v)  ) { //  w skall vara lika med v
+        System.out.println("equals test 2 ");
+        if (!w.equals(v)) { //  w skall vara lika med v
             // med equals(RatNum r) så väljs dock objects equals
             // eftersom parameterprofilen stämmer där och då blir dom olika
             System.out.println("RatNumTest3: FEL 2 i equals!!");
         }
-        //.out.println("equals test 3 ");
-        if ( !v.equals(w) ) { // dyn. bindningen ger RatNums equals
+        System.out.println("equals test 3 ");
+        if (!v.equals(w)) { // dyn. bindningen ger RatNums equals
             // men med equals(RatNum r) så blir det som ovan
             System.out.println("RatNumTest3: FEL 3 i equals!!");
         }
-        //.out.println("equals test 4 ");
+        System.out.println("equals test 4 ");
         try {
-            if ( w.equals(null)  ) { //skall inte vara lika
+            if (w.equals(null)) { //skall inte vara lika
                 System.out.println("RatNumTest3: FEL 4.1 i equals!!");
             }
         } catch (NullPointerException e) { // men skall klara null
             System.out.println("RatNumTest3: FEL 4.2 i equals!!");
         }
         //System.out.println("equals test 5 ");
-        if ( w.equals(str) ) { // skall ge false
+        if (w.equals(str)) { // skall ge false
             // med equals(RatNum r) får man återigen Objects equals
             // och den ger rätt svar här
             System.out.println("RatNumTest3: FEL 5 i equals!!");
@@ -362,26 +415,40 @@ class RatNumTest3 {
         RatNum r = new RatNum(1);
         String expected = "";
         int k = 0;
-        for (int i=0; i<7; i++) {
+        for (int i = 0; i < 7; i++) {
             if (i == 0) {
-                expected = "0.500"; k = 3; r = new RatNum(1,2);
+                expected = "0.500";
+                k = 3;
+                r = new RatNum(1, 2);
             } else if (i == 1) {
-                expected = "-20.0"; k = 1; r = new RatNum(-20,1);
+                expected = "-20.0";
+                k = 1;
+                r = new RatNum(-20, 1);
             } else if (i == 2) {
-                expected = "0.666"; k = 3; r = new RatNum(2,3);
+                expected = "0.666";
+                k = 3;
+                r = new RatNum(2, 3);
             } else if (i == 3) {
-                expected = "0.0001"; k = 4; r = new RatNum(1,10000);
+                expected = "0.0001";
+                k = 4;
+                r = new RatNum(1, 10000);
             } else if (i == 4) {
-                expected = "-0.001"; k = 3; r = new RatNum(-11,10000);
+                expected = "-0.001";
+                k = 3;
+                r = new RatNum(-11, 10000);
             } else if (i == 5) {
-                expected = "104.477"; k = 3; r = new RatNum(7000,67);
+                expected = "104.477";
+                k = 3;
+                r = new RatNum(7000, 67);
             } else if (i == 6) {
-                expected = "0.89"; k = 2; r = new RatNum(89,99);
+                expected = "0.89";
+                k = 2;
+                r = new RatNum(89, 99);
             }
             String output = r.toDotString(k);
             if (!output.equals(expected)) {
                 System.out.println("RatNumTest3 FEL: toDotString(" + k + ") visar fel för " + r.toString() +
-                        "; gav: "+output+"; skulle vara: " + expected);
+                        "; gav: " + output + "; skulle vara: " + expected);
             }
         }
         /*
@@ -400,11 +467,11 @@ class RatNumTest3 {
         Scanner sc = new Scanner(s);
         String[] a = new String[3];
         int i;
-        for(i=0; i<3 && sc.hasNext(); i++) {
+        for (i = 0; i < 3 && sc.hasNext(); i++) {
             a[i] = sc.next();
         }
         if (i != 3 || sc.hasNext())
-            return("Felaktigt uttryck!");
+            return ("Felaktigt uttryck!");
         else {
             try {
                 RatNum r1 = RatNum.parse(a[0]);
@@ -412,7 +479,7 @@ class RatNumTest3 {
                 char c = op.charAt(0);
                 RatNum r2 = new RatNum(a[2]);
                 if (op.length() != 1 || "+-*/=<".indexOf(c) < 0)
-                    return("Felaktig operator!");
+                    return ("Felaktig operator!");
                 else {
                     RatNum res = null;
                     if (c == '+')
@@ -421,21 +488,20 @@ class RatNumTest3 {
                         res = r1.sub(r2);
                     else if (c == '*')
                         res = r1.mul(r2);
-                    else  if (c == '/')
+                    else if (c == '/')
                         res = r1.div(r2);
                     else if (c == '=')
-                        return( Boolean.toString(r1.equals(r2)) );
+                        return (Boolean.toString(r1.equals(r2)));
                     else if (c == '<')
-                        return( Boolean.toString(r1.lessThan(r2)) );
+                        return (Boolean.toString(r1.lessThan(r2)));
                     if ("+-*/".indexOf(c) >= 0)
                         if (res == null)
-                            return("Fel i add, sub, mul eller div");
+                            return ("Fel i add, sub, mul eller div");
                         else
-                            return(res.toString());
+                            return (res.toString());
                 }
-            }
-            catch (NumberFormatException e) {
-                return("NumberFormatException");
+            } catch (NumberFormatException e) {
+                return ("NumberFormatException");
             }
         }
         return ("Okänt fel");
@@ -464,10 +530,16 @@ class RatNumTest3 {
         }
         // read input
         while (true) {
-            if (!machine) {System.out.print("> ");  System.out.flush();}
-            if (!in.hasNext()) {System.out.println(); System.exit(0);} // no input left
+            if (!machine) {
+                System.out.print("> ");
+                System.out.flush();
+            }
+            if (!in.hasNext()) {
+                System.out.println();
+                System.exit(0);
+            } // no input left
             String s = in.nextLine();
-            if ( s == null || s.length()==0 ) {
+            if (s == null || s.length() == 0) {
                 break;
             }
             correctAnswer = "";
@@ -475,24 +547,24 @@ class RatNumTest3 {
             if (machine) {
                 // split input in question - correct answer
                 int i = s.indexOf("-->");
-                if (i<1) {
+                if (i < 1) {
                     System.out.println("##### Error - No answers found in file - cannot correct");
                     System.exit(0);
                 }
-                correctAnswer = s.substring(i+4);
-                s = s.substring(0,i);
+                correctAnswer = s.substring(i + 4);
+                s = s.substring(0, i);
                 //System.out.println("\t##s= " + s + "* correct answer=" + correctAnswer + " debug"); // debug
             }
             String givenAnswer = testExpr(s);
-            stringToPrint.append(s + "\t--> " + givenAnswer );
+            stringToPrint.append(s + "\t--> " + givenAnswer);
             if (machine && !correctAnswer.equals(givenAnswer)) {
                 //System.out.println( "====================================================" );
                 //System.out.println("\t##*"+givenAnswer+"* " + "*"+correctAnswer+ "*" + ratNumToString(new RatNum(givenAnswer)) + "* debug"); // debug
                 // test if answer given as a/B +
                 // strängen till NumberFormatException kan vara olika
-                if ( correctAnswer.equals(ratNumToString(new RatNum(givenAnswer)))
-                        || ( correctAnswer.indexOf("NumberFormatException") != -1
-                        && givenAnswer.indexOf("NumberFormatException") != -1 )
+                if (correctAnswer.equals(ratNumToString(new RatNum(givenAnswer)))
+                        || (correctAnswer.indexOf("NumberFormatException") != -1
+                        && givenAnswer.indexOf("NumberFormatException") != -1)
                 ) {
                     ; // do nothing
                 } else {
@@ -502,7 +574,6 @@ class RatNumTest3 {
             System.out.println(stringToPrint.toString());
         }
     }
-
 }
 
 
