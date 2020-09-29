@@ -1,6 +1,5 @@
 package com.company;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLOutput;
@@ -10,7 +9,6 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] arg) {
-
         System.out.println("Inga fel!");
     }
 
@@ -51,8 +49,8 @@ class RatNum {
      */
     public RatNum(String s) {
 
-        this(parse(s));
 
+        this(parse(s));
     }
 
 
@@ -107,7 +105,7 @@ class RatNum {
         int pLen = frac.length();
         RatNum ratNum;
 
-        if (pLen < 1) {
+        if (pLen == 1) {
 
             ratNum = new RatNum(Integer.parseInt(frac));
 
@@ -117,7 +115,6 @@ class RatNum {
             String sDenominator = frac.substring(dashPos + 1, pLen);
             ratNum = new RatNum(Integer.parseInt(sNumerator), Integer.parseInt(sDenominator));
         }
-
 
         return ratNum;
     }
@@ -169,9 +166,11 @@ class RatNum {
 
         int gcd = 1;
 
+        // 0 / 0 is undefined
         if (n == 0 && m == 0) {
             throw new IllegalArgumentException();
         }
+
 
         /* if anyone of the 2 integers is zero then return the absolute value of the other number
         if they're the same value, return  the absolute value of any of them*/
@@ -185,9 +184,7 @@ class RatNum {
 
         // The absolute value of the number closest to zero is the biggest possible cd for any 2 numbers
         if (Math.abs(m) > Math.abs(n)) {
-
             for (int i = Math.abs(m); i > 0; i--) {
-
                 if (m % i == 0 && n % i == 0) {
                     return i;
                 }
@@ -218,13 +215,19 @@ class RatNum {
      */
     @Override
     public boolean equals(Object r) {
+
+        // If the object is null it cant be a ratNum
         if (r == null) {
             return false;
         }
+
+        // is r a RatNum?
         if (!(r instanceof RatNum)) {
             return false;
         }
 
+        // Since we know its a ratnum we can typecast r into a ratnum in order to
+        // get acess to its methods, without risking errors/exceptions.
         RatNum r2 = (RatNum) r;
         return (this.numerator == r2.getNumerator() && this.denominator == r2.getDenominator());
     }
@@ -242,6 +245,7 @@ class RatNum {
         rExtnum = r.getNumerator() * this.getDenominator();
         extNum = this.numerator * r.getDenominator();
 
+        // compare numerators when they share denominators
         if (rExtnum < extNum) {
             return true;
         }
@@ -255,7 +259,6 @@ class RatNum {
     public RatNum add(RatNum r) {
 
         int sumNumerator, sumDenominator;
-
 
         // a/b + c/d = (a*d + c*b) / b*d
         sumDenominator = (this.denominator * r.getDenominator());
@@ -310,10 +313,13 @@ class RatNum {
         String s = "a";
         int temp;
 
+          // removes the least weighted digit
         temp = this.numerator / this.denominator;
 
-        if (this.numerator < 0) {
-            if (temp == 0) {
+        // the denominator will never be negative here since it's already converted,
+        // meaning we only have to check the numerator
+        if (this.numerator < 0 ) {
+            if (temp == 0) { // have to manually concat - since the program may round to zero
                 s = "-" + String.valueOf(temp);
             } else {
                 s = String.valueOf(temp);
@@ -322,13 +328,22 @@ class RatNum {
             s = String.valueOf(temp);
         }
 
-
         if (decimalCount == 0)
             return s;
 
         // for decimalcount > 0 we need a decimalpoint
         s += ".";
 
+        /*
+            algoritm:
+            decimalCount - 1 times :
+
+                temp = | numerator / denominator |
+                s += toString(temp)
+                temp = numerator % denominator
+                s += toString(temp)
+                temp*=10
+         */
         temp = this.numerator % this.denominator;
         temp = Math.abs(temp);
         for (int i = 0; i < decimalCount; i++) {
